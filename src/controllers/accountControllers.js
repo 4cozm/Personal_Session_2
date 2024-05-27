@@ -6,15 +6,15 @@ import dotenv from 'dotenv';
 const prisma = new PrismaClient();
 
 export const createAccount = async (req, res) => {
-  const { accountId, password, passwordCheck } = req.body;
+  const { accountName, password, passwordCheck } = req.body;
 
   try {
-    const existingaccountId = await prisma.accounts.findUnique({
+    const existingAccount = await prisma.accounts.findUnique({
       where: {
-        accountId: accountId,
+        accountName: accountName,
       },
     });
-    if (existingaccountId) {
+    if (existingAccount) {
       throw new Error('이미 존재하는 계정입니다');
     }
     if (!vaildatePassword(password)) {
@@ -33,12 +33,11 @@ export const createAccount = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10); // 사용자가 입력한 password를 해싱하고 10자리 salt를 친다
     const newAccount = await prisma.accounts.create({
       data: {
-        accountId,
+        accountName: accountName,
         password: hashedPassword, //해싱된 password 사용
       },
       select: {
-        accountId: true,
-        createAt: true,
+        accountName: true,
       },
     });
 
@@ -53,15 +52,15 @@ export const createAccount = async (req, res) => {
 };
 
 export const deleteAccount = async (req, res) => {
-  const { accountId, password } = req.body;
-  const user =await findAccount(accountId);
+  const { accountName, password } = req.body;
+  const user = await findAccount(accountName);
 
   try {
-    const check =await checkPassword(user, password); //패스워드 체크
+    const check = await checkPassword(user, password); //패스워드 체크
     if (check) {
       await prisma.accounts.delete({
         where: {
-          accountId: accountId,
+          accountName: accountName,
         },
       });
       return res.status(200).json({ message: '계정 삭제 완료' });
@@ -71,20 +70,26 @@ export const deleteAccount = async (req, res) => {
         .json({ errorMessage: '비밀번호가 올바르지 않습니다' });
     }
   } catch (error) {
-    res.status(500).json({ errorMessage: '계정 삭제 과정중 오류 발생'+error.message });
+    res
+      .status(500)
+      .json({ errorMessage: '계정 삭제 과정중 오류 발생' + error.message });
   }
 };
 
 export const login = async (req, res) => {
   try {
     const { accountId, password } = req.body;
-    const user =await findAccount(accountId);
-    const check =await checkPassword(user, password);
+    const user = await findAccount(accountId);
+    const check = await checkPassword(user, password);
     if (check) {
-      const token = jwt.sign({ accountId }, process.env.JWT_SECRET, {
-        expiresIn: '1h',
-      });
-      res.cookie('token', token, {
+      const token = jwt.sign(
+        { accountId: user.accountId },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: '1h',
+        }
+      );
+      res.cookie('authorization', `bearer ${token}`, {
         httpOnly: true,
       });
       res.status(200).json({ messgae: '로그인 성공 인증토큰 발행 완료' });
@@ -103,11 +108,11 @@ function vaildatePassword(password) {
   return condition.test(password);
 }
 
-async function findAccount(accountId) {
+async function findAccount(accountName) {
   try {
     const user = await prisma.accounts.findUnique({
       where: {
-        accountId: accountId,
+        accountName: accountName,
       },
     });
     if (!user) throw new Error('해당 아이디로 가입된 계정을 찾을 수 없습니다');
