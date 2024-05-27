@@ -14,44 +14,45 @@ datasource db {
 }
 
 model accounts {
-  accountName String     @db.VarChar(255) @id
-  password   String      @db.VarChar(255)
-  characters characters[]
-}
-model characters {
-  characterName     String   @db.VarChar(255) @id
-  health   Int?     @default(500)
-  power    Int?     @default(100)
-  money    Int?     @default(10000)
-  AccountName String
-  account accounts @relation(fields: [AccountName],references: [accountName],onDelete: Cascade,onUpdate: Cascade)
-  Anventory inventory?
-  Equip equip?
+  accountId   Int     @id @default(autoincrement())
+  accountName String  @db.VarChar(255) @unique
+  password    String  @db.VarChar(255)
+  characters  characters[]
 }
 
+model characters {
+  characterId   Int    @id @default(autoincrement())
+  characterName String @db.VarChar(255) @unique
+  gender        String @db.VarChar(255)
+  power         Int    @default(100)
+  health        Int    @default(500)
+  accountId     Int
+  account       accounts @relation(fields: [accountId], references: [accountId])
+  inventory     inventory?
+  equip         equip?
+}
 
 model inventory {
-  CharacterName String @unique
-  characters characters @relation(fields: [CharacterName],references: [characterName])
-  Items Items[]
+  inventoryId Int @id @default(autoincrement())
+  CharacterId Int @unique
+  character   characters @relation(fields: [CharacterId], references: [characterId])
+  items       items[]
 }
 
-model Items {
-  itemId        Int     @id @default(autoincrement())
-  itemName String @unique
-  amount    Int
-  health    Int
-  power     Int
-  CharacterName String @unique
+model items {
+  itemId      Int @id @default(autoincrement())
+  itemName    String @db.VarChar(255)
+  power       Int
+  health      Int
+  inventoryId Int @unique
+  inventory   inventory @relation(fields: [inventoryId], references: [inventoryId])
   EquipId Int @unique
-  inventory inventory @relation(fields: [CharacterName],references: [CharacterName])
-  equip equip @relation(fields: [EquipId],references: [equipId],onDelete: Cascade,onUpdate: Cascade)
+  equips equip @relation(fields: [EquipId],references: [equipId])
 }
 
 model equip {
-  equipId Int @id @default(autoincrement())
-  CharacterName String @unique
-  characters characters @relation(fields: [CharacterName],references: [characterName])
-  Item Items[]
+  equipId    Int @id @default(autoincrement())
+  CharacterId  Int @unique
+  character    characters @relation(fields: [CharacterId], references: [characterId])
+  items items[]
 }
-
