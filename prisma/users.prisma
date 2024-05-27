@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+  output = "./generated/users"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("USER_DATABASE_URL")
+}
+
+model accounts {
+  id         Int         @id @default(autoincrement())
+  accountId  String      @db.VarChar(255) @unique
+  password   String      @db.VarChar(255)
+  characters characters?
+}
+
+model character_inventory {
+  id Int @id @default(autoincrement())
+}
+
+model character_items {
+  id Int @id @default(autoincrement())
+}
+
+model characters {
+  id       Int      @id @default(autoincrement())
+  name     String   @db.VarChar(255)
+  health   Int?     @default(500)
+  power    Int?     @default(100)
+  money    Int?     @default(10000)
+  accounts accounts @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "characters_ibfk_1")
+}
