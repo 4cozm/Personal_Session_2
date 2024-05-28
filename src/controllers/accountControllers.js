@@ -3,13 +3,14 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
+
 const prisma = new PrismaClient();
 
 export const createAccount = async (req, res) => {
   const { accountName, password, passwordCheck } = req.body;
 
   try {
-    const existingAccount = await prisma.accounts.findUnique({
+    const existingAccount = await prisma.accounts.findFirst({
       where: {
         accountName: accountName,
       },
@@ -43,7 +44,7 @@ export const createAccount = async (req, res) => {
 
     res
       .status(201)
-      .json({ message: '계정이 정상적으로 생성되었습니다.', newAccount });
+      .json({ data:newAccount });
   } catch (error) {
     res
       .status(500)
@@ -60,7 +61,7 @@ export const deleteAccount = async (req, res) => {
     if (check) {
       await prisma.accounts.delete({
         where: {
-          accountName: accountName,
+          accountName: user.accountName,
         },
       });
       return res.status(200).json({ message: '계정 삭제 완료' });
@@ -110,7 +111,7 @@ function vaildatePassword(password) {
 
 async function findAccount(accountName) {
   try {
-    const user = await prisma.accounts.findUnique({
+    const user = await prisma.accounts.findFirst({
       where: {
         accountName: accountName,
       },
@@ -118,7 +119,7 @@ async function findAccount(accountName) {
     if (!user) throw new Error('해당 아이디로 가입된 계정을 찾을 수 없습니다');
     return user;
   } catch (error) {
-    throw new Error(error.message); // 계정 검색오류를 상위 함수로 다시 던집니다.
+    throw new Error(error.message); // findAccount 오류를 상위 함수로 다시 던집니다.
   }
 }
 
@@ -130,6 +131,6 @@ async function checkPassword(user, password) {
     // 주어진 비밀번호와 사용자의 해시된 비밀번호를 비교
     return await bcrypt.compare(password, user.password);
   } catch (error) {
-    throw new Error(error.message); // 비밀번호 오류를 상위 함수로 다시 던집니다.
+    throw new Error(error.message); // checkPassword 오류! 상위 함수로 다시 던집니다.
   }
 }

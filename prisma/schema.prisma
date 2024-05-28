@@ -44,9 +44,9 @@ model items {
   itemName    String @db.VarChar(255)
   power       Int
   health      Int
-  inventoryId Int @unique
+  inventoryId Int 
   inventory   inventory @relation(fields: [inventoryId], references: [inventoryId])
-  EquipId Int @unique
+  EquipId Int 
   equips equip @relation(fields: [EquipId],references: [equipId])
 }
 
