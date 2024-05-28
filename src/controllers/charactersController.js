@@ -61,13 +61,54 @@ export const deleteCharacter = async (req, res) => {
     }
     //3.삭제 진행
     await prisma.characters.delete({
-      where:{
-        accountId:+user.accountId
-      }
+      where: {
+        accountId: +user.accountId,
+      },
     });
     return res.status(200).json({ message: '캐릭터 삭제 완료' });
   } catch (error) {
-    return res.status(500).json({ errorMessage: error.message +"////deleteCharacter에서 오류 발생"});
+    return res.status(500).json({
+      errorMessage: error.message + '////deleteCharacter에서 오류 발생',
+    });
+  }
+};
+
+export const searchCharacters = async (req, res) => {
+  try {
+    //1.body에서 캐릭터 이름을 받아온다 캐릭터가 존재하는지 확인한다
+    const { characterName } = req.body;
+    const character = await prisma.characters.findFirst({
+      where: {
+        characterName: characterName,
+      },
+    });
+    if (!character) {
+      return res
+        .status(404)
+        .json({ message: '존재하지 않는 캐릭터 이름입니다' });
+    }
+    //2.인증 미들웨어로 사용자의 계정에 포함된 캐릭터인지 확인한다
+    const user = req.user;
+
+    if (user.accountId == character.accountId) {
+      //3.사용자 소유의 캐릭터일 경우
+      return res.status(200).json({ data: character }); //모든 정보를 반환
+    } else {
+      //4.사용자 소유의 캐릭터가 아닐 경우
+      const { characterName, power, health } = character;
+      const characterInfo = {
+        characterName: characterName,
+        power: power,
+        health: health,
+      };
+      return res.status(200).json({ data: characterInfo });
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        errorMessage: error.message + '////searchCharacters에서 오류 발생',
+      });
   }
 };
 
