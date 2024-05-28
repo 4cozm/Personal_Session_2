@@ -26,7 +26,7 @@ model characters {
   gender        String @db.VarChar(255)
   power         Int    @default(100)
   health        Int    @default(500)
-  accountId     Int
+  accountId     Int @unique
   account       accounts @relation(fields: [accountId], references: [accountId])
   inventory     inventory?
   equip         equip?

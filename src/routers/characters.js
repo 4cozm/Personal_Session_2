@@ -1,10 +1,9 @@
-import express, { Router } from "express";
-
-import {createCharacters} from "../controllers/charactersController.js"
+import express, { Router } from 'express';
+import authmiddleware from '../middleware/auth.middleware.js';
+import { createCharacters } from '../controllers/charactersController.js';
 
 const charactersRouter = express(Router);
 
-charactersRouter.post("/",createCharacters);
-
+charactersRouter.post('/', authmiddleware, createCharacters);
 
 export default charactersRouter;

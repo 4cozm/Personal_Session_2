@@ -3,7 +3,6 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
-
 const prisma = new PrismaClient();
 
 export const createAccount = async (req, res) => {
@@ -42,9 +41,7 @@ export const createAccount = async (req, res) => {
       },
     });
 
-    res
-      .status(201)
-      .json({ data:newAccount });
+    res.status(201).json({ data: newAccount });
   } catch (error) {
     res
       .status(500)
@@ -81,6 +78,9 @@ export const login = async (req, res) => {
   try {
     const { accountId, password } = req.body;
     const user = await findAccount(accountId);
+    if (!user) {
+      throw new Error('아이디가 존재하지 않습니다');
+    }
     const check = await checkPassword(user, password);
     if (check) {
       const token = jwt.sign(
@@ -90,7 +90,7 @@ export const login = async (req, res) => {
           expiresIn: '1h',
         }
       );
-      res.cookie('authorization', `bearer ${token}`, {
+      res.cookie('authorization', `Bearer ${token}`, {
         httpOnly: true,
       });
       res.status(200).json({ messgae: '로그인 성공 인증토큰 발행 완료' });
