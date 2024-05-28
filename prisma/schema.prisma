@@ -35,7 +35,7 @@ model characters {
 model inventory {
   inventoryId Int @id @default(autoincrement())
   CharacterId Int @unique
-  character   characters @relation(fields: [CharacterId], references: [characterId])
+  character   characters @relation(fields: [CharacterId], references: [characterId],onDelete: Cascade)
   items       items[]
 }
 
