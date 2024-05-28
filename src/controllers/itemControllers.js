@@ -92,3 +92,17 @@ export const reNewItem = async (req, res) => {
     return res.status(500).json({ errorMessage: error.message });
   }
 };
+
+
+export const searchItem = async (req, res) => {
+    //1.모든 아이템의 코드,이름,가격
+    const result = await prisma.items.findMany({
+        select: {
+            itemId: true,
+            itemCode: true,
+            itemName: true,
+            itemPrice: true
+        }
+    });
+    return res.status(200).json({ data: result });
+}
