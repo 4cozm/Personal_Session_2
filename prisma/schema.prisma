@@ -41,13 +41,15 @@ model inventory {
 
 model items {
   itemId      Int @id @default(autoincrement())
+  itemCode    Int @unique
   itemName    String @db.VarChar(255)
-  power       Int
-  health      Int
-  inventoryId Int 
-  inventory   inventory @relation(fields: [inventoryId], references: [inventoryId])
-  EquipId Int 
-  equips equip @relation(fields: [EquipId],references: [equipId])
+  power       Int?
+  health      Int?
+  itemPrice       Int
+  inventoryId Int?
+  inventory   inventory? @relation(fields: [inventoryId], references: [inventoryId])
+  EquipId Int?
+  equips equip? @relation(fields: [EquipId],references: [equipId])
 }
 
 model equip {

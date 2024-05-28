@@ -1,6 +1,7 @@
 import express from 'express';
 import accountRouter from './routers/account.js';
 import charactersRouter from './routers/characters.js';
+import itemRouter from './routers/items.js';
 import { requestLogger, errorHandler } from './middleware/log.middleware.js';
 import cookieParser from 'cookie-parser';
 
@@ -13,6 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/account', accountRouter);
 app.use('/api/character', charactersRouter);
+app.use('/api/item',itemRouter);
 app.use(requestLogger);
 
 app.use(errorHandler);
