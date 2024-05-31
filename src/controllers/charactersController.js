@@ -56,7 +56,7 @@ export const deleteCharacter = async (req, res) => {
     const user = req.user;
     if (user.accountId != character.accountId) {
       return res
-        .status(401)
+        .status(403)
         .json({ errorMessage: '캐릭터가 본인의 소유가 아닙니다' });
     }
     //3.삭제 진행

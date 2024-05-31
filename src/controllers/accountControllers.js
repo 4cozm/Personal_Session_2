@@ -25,7 +25,7 @@ export const createAccount = async (req, res) => {
       throw new Error('비밀번호 확인이 올바르지 않습니다');
     }
   } catch (error) {
-    res.status(400).json({ errorMessage: error.message });
+    res.status(500).json({ errorMessage: error.message });
     return;
   }
 
